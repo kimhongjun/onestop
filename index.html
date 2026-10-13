@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>식품 원스톱 플랫폼 체험</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: 한 화면에 할 일 하나. 위 막대(로고·홈·내 정보·도움 요청) + 가운데 좁은 작업 칸 + 오른쪽 아래 큰 [다음] */
+:root{
+  --bg:#F4F7F3; --surface:#FFFFFF; --ink:#1E2A24; --muted:#5C6962; --line:#D9E2DB;
+  --brand:#2E7D5B; --brand-ink:#FFFFFF; --deep:#1F4D3A; --soft:#E6F1EA;
+  --amber:#E9A23B; --amber-soft:#FBEFD9; --amber-ink:#7A4E0A;
+  --red:#B4472F; --red-soft:#F8E4DE;
+  --f-body:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111814; --surface:#19221D; --ink:#E6EEE8; --muted:#9BA9A1; --line:#2B3831;
+  --brand:#4FA67E; --brand-ink:#0D1611; --deep:#A9D8BD; --soft:#1E3529;
+  --amber:#E9A23B; --amber-soft:#3A2D16; --amber-ink:#F3CB82; --red:#E08A72; --red-soft:#3A1F18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111814; --surface:#19221D; --ink:#E6EEE8; --muted:#9BA9A1; --line:#2B3831;
+  --brand:#4FA67E; --brand-ink:#0D1611; --deep:#A9D8BD; --soft:#1E3529;
+  --amber:#E9A23B; --amber-soft:#3A2D16; --amber-ink:#F3CB82; --red:#E08A72; --red-soft:#3A1F18; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.demo{background:var(--amber-soft);color:var(--amber-ink);font-size:14px;padding:8px 16px;display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;align-items:center}
+.demo button{background:none;border:0;text-decoration:underline;color:inherit;padding:0;font-size:14px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .in{max-width:1080px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.logo{font-weight:800;color:var(--deep);font-size:18px;margin-right:auto;background:none;border:0;padding:4px 0;letter-spacing:-.02em}
+.logo b{color:var(--brand)}
+.nav{background:none;border:0;padding:8px 12px;border-radius:8px;font-weight:500}
+.nav:hover{background:var(--soft)}
+.helpbtn{background:var(--amber);color:#2A1B02;border:0;border-radius:10px;padding:9px 16px;font-weight:700}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:28px 120px}
+.narrow{max-width:720px;margin:0 auto}
+h1{font-size:28px;line-height:1.3;margin:0 0 6px;text-wrap:balance;letter-spacing:-.02em}
+h2{font-size:21px;margin:0 0 10px;text-wrap:balance}
+.lead{color:var(--muted);margin:0 0 22px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:12px;padding:14px 22px;font-weight:700;background:var(--brand);color:var(--brand-ink);font-size:17px}
+.btn.big{padding:17px 30px;font-size:19px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.soft{background:var(--soft);color:var(--deep)}
+.btn.amber{background:var(--amber);color:#2A1B02}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sm{padding:9px 14px;font-size:15px;border-radius:10px}
+.link{background:none;border:0;color:var(--brand);text-decoration:underline;padding:0;font-weight:500}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:700;font-size:16px}
+.field .hint{color:var(--muted);font-size:14px}
+.inp{width:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);font-size:18px}
+.inp:focus{border-color:var(--brand);outline:none}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.grid3,.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:24px}}
+@media (max-width:480px){.grid2,.grid3{grid-template-columns:minmax(0,1fr)}}
+.pick{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:18px;text-align:left;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pick:hover{border-color:var(--brand)}
+.pick.on{border-color:var(--brand);background:var(--soft);box-shadow:0 0 0 2px var(--brand) inset}
+.pick b{font-size:18px}
+.pick small{color:var(--muted);font-size:14px;line-height:1.5}
+.tick{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);font-size:14px;font-weight:800;flex:none}
+.pick.on .tick{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+/* wizard */
+.flowhead{margin-bottom:22px}
+.crumb{color:var(--muted);font-size:15px}
+.stepn{display:inline-block;background:var(--deep);color:var(--surface);font-weight:700;font-size:15px;border-radius:999px;padding:4px 14px;margin:8px 0 12px}
+.dots{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 18px;flex-wrap:wrap}
+.dots li{flex:1 1 90px;font-size:13px;color:var(--muted);border-top:5px solid var(--line);padding-top:6px;min-width:0}
+.dots li.done{border-color:var(--moss,var(--brand));color:var(--ink)}
+.dots li.now{border-color:var(--amber);color:var(--ink);font-weight:700}
+.actions{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));z-index:4}
+.actions .in{max-width:1080px;margin:0 auto;display:flex;gap:12px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.actions .later{margin-right:auto}
+/* rows */
+.crow{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.crow:last-child{border-bottom:0}
+.crow .k{font-weight:700;color:var(--muted);font-size:15px}
+@media (max-width:560px){.crow{grid-template-columns:minmax(0,1fr) auto}.crow .k{grid-column:1/-1}}
+.say{border-radius:12px;padding:14px 16px;background:var(--soft);color:var(--deep);font-weight:500}
+.say.warn{background:var(--amber-soft);color:var(--amber-ink)}
+.say.bad{background:var(--red-soft);color:var(--red)}
+.chip{display:inline-block;font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--soft);color:var(--deep);white-space:nowrap}
+.chip.amber{background:var(--amber-soft);color:var(--amber-ink)}
+.chip.gray{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+/* home */
+.newbtn{width:100%;display:flex;align-items:center;gap:18px;padding:26px;border-radius:16px;border:0;background:var(--brand);color:var(--brand-ink);text-align:left}
+.newbtn .plus{width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:34px;font-weight:400;flex:none}
+.newbtn b{font-size:24px;display:block}
+.todo{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.todo:last-child{border-bottom:0}
+.pcard{text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pcard:hover{border-color:var(--brand)}
+.thumb{height:92px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:15px}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .4s}
+/* product screen */
+.band{display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;background:var(--deep);color:var(--surface);border-radius:14px;padding:16px 20px;margin-bottom:18px}
+.band b{font-size:18px}
+.band .sp{margin-left:auto}
+.band.none{background:var(--amber-soft);color:var(--amber-ink)}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item h3{margin:0;font-size:19px}
+.item .d{color:var(--muted);font-size:14px}
+.st{margin-top:6px;font-weight:700;font-size:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.st.none{color:var(--muted)} .st.review{color:var(--amber-ink)} .st.done{color:var(--brand)} .st.changed{color:var(--red)} .st.locked{color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%;background:currentColor;flex:none}
+@media (max-width:560px){.item{grid-template-columns:minmax(0,1fr)}}
+/* upload */
+.drop{border:2.5px dashed var(--line);border-radius:16px;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:18px;cursor:pointer;background:var(--surface);overflow:hidden;position:relative}
+.drop:hover{border-color:var(--brand)}
+.drop.ok{border-style:solid;border-color:var(--brand);background:var(--soft)}
+.drop img{max-height:170px;border-radius:8px}
+.cam{width:54px;height:54px;border-radius:14px;background:var(--soft);display:grid;place-items:center;color:var(--brand);font-size:28px}
+/* detail editor */
+.ed{display:grid;grid-template-columns:minmax(0,430px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.ed{grid-template-columns:minmax(0,1fr)}}
+.dp{background:var(--dp-bg);color:var(--dp-ink);border-radius:12px;border:1px solid var(--line);overflow:hidden;max-height:72vh;overflow-y:auto}
+.blk{padding:22px 22px;border:3px solid transparent;cursor:pointer;position:relative}
+.blk:hover{border-color:color-mix(in srgb,var(--dp-ac) 40%,transparent)}
+.blk.on{border-color:var(--amber)}
+.blk h4{margin:0 0 6px;font-size:21px;line-height:1.35;color:var(--dp-ac)}
+.blk.loud h4{font-size:27px;background:linear-gradient(transparent 60%,color-mix(in srgb,var(--dp-ac) 25%,transparent) 60%);display:inline}
+.blk p{margin:6px 0 0;font-size:15px}
+.blk.lock{font-size:13px;background:color-mix(in srgb,var(--dp-ink) 5%,transparent)}
+.blk.lock h4{font-size:15px;color:var(--dp-ink)}
+.blk.lock p{font-size:13px}
+.lk{position:absolute;top:10px;right:10px;font-size:12px;font-weight:700;background:var(--dp-ink);color:var(--dp-bg);border-radius:99px;padding:2px 9px}
+.art{height:150px;border-radius:10px;margin-bottom:14px;display:grid;place-items:center}
+.boxart{width:96px;height:124px;border-radius:6px;background:linear-gradient(160deg,#fff 0 30%,transparent 30%),var(--c);box-shadow:6px 8px 0 rgba(0,0,0,.12);display:flex;flex-direction:column;justify-content:flex-end;padding:8px;color:#fff;font-size:11px;font-weight:800;line-height:1.2}
+.strip{height:80px;border-radius:10px;margin-bottom:12px}
+.panel{position:sticky;top:90px}
+.tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tools .btn{width:100%}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+/* misc preview */
+.thumbs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.slide{aspect-ratio:16/9;max-width:100%;border-radius:10px;border:1px solid var(--line);background:#FFFFFF;color:#1E2A24;padding:12px;display:flex;flex-direction:column;gap:6px;font-size:12px;overflow:hidden}
+.slide .t{font-weight:800;font-size:15px;color:#1F4D3A}
+.slide .ln{height:7px;border-radius:4px;background:#DDE6DF}
+.slide.cover{background:#1F4D3A;color:#fff;justify-content:flex-end}
+.slide.cover .t{color:#fff;font-size:18px}
+.pop{background:#FFFFFF;color:#1E2A24;border-radius:12px;border:1px solid var(--line);padding:22px;display:flex;flex-direction:column;gap:8px;max-width:360px}
+.pop .ph{font-size:26px;font-weight:800;color:#C2410C;line-height:1.25}
+.pop .pr{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;color:#1E2A24}
+.pop .tag{display:inline-block;background:#2E7D5B;color:#fff;border-radius:6px;padding:2px 8px;font-size:14px;font-weight:700}
+.pop.banner{max-width:220px;min-height:340px;justify-content:space-between}
+.pop.strip2{max-width:100%;flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.dieline{overflow-x:auto}
+.dl{display:grid;grid-template-columns:4fr 3fr 4fr 3fr;grid-template-rows:60px 170px 60px;min-width:560px;gap:0;font-size:13px}
+.dl div{border:1.5px dashed var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;color:var(--muted)}
+.dl .face{border-style:solid;border-color:var(--ink);color:var(--ink);background:var(--surface);flex-direction:column;gap:4px}
+.dl .face.front{background:var(--soft)}
+.dl .face b{font-size:15px}
+.dl .empty{border:0}
+.checks{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.checks li{display:flex;gap:10px;align-items:center;font-size:17px}
+.checks li.wait{color:var(--muted)}
+.ck{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:var(--brand-ink);font-weight:800;font-size:15px;flex:none}
+.wait .ck{background:var(--line);color:var(--muted)}
+.tl{list-style:none;padding:0;margin:0}
+.tl li{display:flex;gap:14px;padding-bottom:20px;position:relative}
+.tl li:not(:last-child)::before{content:"";position:absolute;left:13px;top:30px;bottom:2px;width:2px;background:var(--line)}
+.tl li.done::before{background:var(--brand)}
+.prog{height:16px;background:var(--line);border-radius:99px;overflow:hidden;margin:20px 0 10px}
+.prog i{display:block;height:100%;width:0;background:var(--brand);animation:fill var(--dur,2.4s) linear forwards}
+@keyframes fill{to{width:100%}}
+@media (prefers-reduced-motion:reduce){.prog i{animation-duration:.01s}}
+.diff{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.diff .old{color:var(--muted);text-decoration:line-through;font-weight:500}
+.num{font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--deep);color:var(--surface);padding:12px 22px;border-radius:12px;font-weight:700;z-index:20;max-width:calc(100% - 32px);text-align:center}
+.ov{position:fixed;inset:0;background:rgba(10,20,15,.55);display:grid;place-items:center;z-index:30;padding:16px}
+.ov .card{max-width:460px;width:100%}
+.help a{color:inherit}
+.big3{display:grid;gap:12px}
+.big3 button{text-align:left;padding:18px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface)}
+.big3 button b{display:block;font-size:19px}
+.big3 small{color:var(--muted)}
+.pk{display:flex;flex-direction:column;gap:8px}
+.pk .price{font-size:24px;font-weight:800}
+.pk ul{margin:4px 0 0;padding-left:18px;font-size:15px;color:var(--muted)}
+.pk .rec{align-self:flex-start}
+.login{max-width:440px;margin:20px auto}
+.sns{display:grid;gap:10px}
+.sns .k{background:#FEE500;color:#191600;border:0}
+.sns .n{background:#03C75A;color:#fff;border:0}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.swatch{width:46px;height:46px;border-radius:12px;border:3px solid transparent}
+.swatch.on{border-color:var(--ink)}
+.cbx{display:flex;gap:12px;align-items:center;font-size:18px;font-weight:700;padding:16px;border:2px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer}
+.cbx input{width:26px;height:26px;accent-color:var(--brand)}
+.mini{font-size:14px;color:var(--muted)}
+table.t{width:100%;border-collapse:collapse;font-size:15px}
+table.t td,table.t th{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left}
+table.t td.n{text-align:right;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- Supabase (supabase-js v2) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Supabase 주소와 키는 config.js 에 따로 있어요 -->
+<script src="config.js"></script>
+<script>
+/* ===== 데이터 ===== */
+const fmt=n=>Number(n||0).toLocaleString('ko-KR');
+const margin=(sup,sell)=>sell>0?((sell-sup)/sell*100).toFixed(2):'0.00';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const two=n=>String(n).padStart(2,'0');
+const mmdd=t=>{const d=new Date(t);return two(d.getMonth()+1)+'.'+two(d.getDate())};
+const kdate=t=>{const d=new Date(t);return (d.getMonth()+1)+'월 '+d.getDate()+'일'};
+const hsh=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
+const clone=o=>JSON.parse(JSON.stringify(o));
+const ITEMS=[
+ {k:'detail',name:'상세페이지',desc:'온라인몰에 올리는 긴 상품 소개',ai:true},
+ {k:'pop',name:'POP',desc:'매장에 붙이는 가격표·광고 문구',ai:true},
+ {k:'proposal',name:'상품 제안서',desc:'바이어에게 보여주는 소개 자료 (PPT·PDF)'},
+ {k:'box',name:'박스 그림',desc:'무지 박스에 들어갈 밑그림'},
+ {k:'hanaro',name:'하나로마트 서류',desc:'입점 신청에 내는 서류 2개'},
+ {k:'order',name:'박스·POP 발주',desc:'인쇄소에 만들어 달라고 부탁하기'},
+];
+/* 패키지별 횟수는 서버(grant_package)가 정해요. 여기 글은 고르는 화면에 보여 주는 설명이에요. */
+const PKG={
+ '실버':{price:'○만 원',lines:['하나로마트 서류·제안서·박스 그림','상세페이지 AI로 만들기 1회 (체험)','POP AI로 만들기 1회 (체험)']},
+ '골드':{price:'○○만 원',lines:['실버 전부','상세페이지 AI로 만들기 3회','POP AI로 만들기 3회'],rec:true},
+ '프리미엄':{price:'○○만 원',lines:['골드 전부','상세페이지·POP 각 5회','담당자가 대신 만들어 드리기 1회']},
+};
+/* 구매 내역에 보여 줄 값. 금액이 0(체험)이면 이 예시 글자를 보여 줘요 */
+const SKU_PRICE={PKG_SILVER:'○만 원',PKG_GOLD:'○○만 원',PKG_PREMIUM:'○○만 원',ADDON_DETAIL3:'○만 원',ADDON_POP3:'○만 원'};
+const THEMES={
+ a:{name:'깔끔한 흰색',bg:'#FFFFFF',ac:'#2E7D5B',ink:'#1E2A24',c:'#2E7D5B'},
+ b:{name:'따뜻한 쌀빛',bg:'#FBF5E9',ac:'#A8641F',ink:'#3A2A18',c:'#C98B3E'},
+ c:{name:'농협 초록',bg:'#EAF4EC',ac:'#1F6B47',ink:'#163626',c:'#3F8F5F'},
+ d:{name:'또렷한 대비',bg:'#1E2A24',ac:'#F2C14E',ink:'#FFFFFF',c:'#B98A1E'},
+};
+const SAMPLE={
+ name:'농협 저당 쌀 시리얼 280g',vol:'280g',barcode:'8801448768406',maker:'○○농협 가공사업소',
+ raw:'쌀(국산) 62%, 현미(국산), 귀리, 대두, 올리고당, 정제소금',allergy:'대두 함유',
+ nutri:'1회(30g) 110kcal · 나트륨 95mg · 당류 3g',cert:'HACCP',
+ pros:['밀가루 No, 우리쌀','당은 낮게, 저당 설계','튀기지 않고 오븐에 구움'],sup:6130,sell:7480
+};
+const BLANK_INFO={vol:'',barcode:'',maker:'',raw:'',allergy:'',nutri:'',cert:'',pros:['','',''],sup:0,sell:0};
+const COLORS=['#2E7D5B','#1F4D3A','#C98B3E','#B4472F','#2F5D8A'];
+const ST0=()=>({detail:'none',pop:'none',proposal:'none',box:'none',hanaro:'none',order:'none'});
+const blankCompany=()=>({name:'',tel:'',biz:'',ceo:'',gln:'',maker:'',color:COLORS[0]});
+function init(){return{
+ screen:'boot',pid:null,wiz:null,sel:null,help:false,overlay:null,done:null,chg:null,busy:false,pay:null,
+ user:null,     // 로그인한 사람 {id,email}
+ company:null,  // 내 업체 (companies 표)
+ buys:[],       // 구매 내역 (purchases 표)
+ log:[],        // 지난 기록 (activity_log 표)
+ P:[],          // 내 상품 (products + assets + product_packages + print_orders 표)
+}}
+let S=init();
+const cur=()=>S.P.find(p=>p.id===S.pid);
+
+/* ===== 서버(Supabase) 연결 ===== */
+let sb=null;
+/* DB를 부르는 곳은 모두 q()를 지나가요. 실패하면 에러를 던져요. */
+async function q(req){const {data,error}=await req;if(error)throw error;return data}
+const isNet=e=>navigator.onLine===false||/failed to fetch|networkerror|load failed|network request failed/i.test((e&&e.message)||'');
+const isAuth=e=>!!e&&(e.status===401||e.code==='PGRST301'||/jwt expired|invalid jwt/i.test(e.message||''));
+function saveFail(e){console.warn('저장 실패',e);
+ if(isAuth(e)){toast('로그인이 풀렸어요. 다시 로그인해 주세요',4000);return}
+ toast(isNet(e)?'저장이 안 됐어요. 인터넷 연결을 확인해 주세요':'저장이 안 됐어요. 잠시 뒤에 다시 해 주세요',4000)}
+function loadFail(e){console.warn('불러오기 실패',e);
+ if(isAuth(e)){toast('로그인이 풀렸어요. 다시 로그인해 주세요',4000);return}
+ toast(isNet(e)?'불러오지 못했어요. 인터넷 연결을 확인해 주세요':'불러오지 못했어요. 잠시 뒤에 다시 해 주세요',4000)}
+
+/* DB 줄 → 화면에서 쓰는 모양 */
+function toCompany(c){return{id:c.id,name:c.name,tel:c.tel||'',biz:c.biz_no||'',ceo:c.ceo||'',gln:c.gln||'',maker:c.maker||'',color:c.color||COLORS[0]}}
+function toP(r,assets=[],pkgs=[],orders=[]){
+ const st=ST0();assets.forEach(a=>{if(a.product_id===r.id)st[a.kind]=a.status});
+ const k=pkgs.find(x=>x.product_id===r.id);
+ return{id:r.id,name:r.name,info:{...BLANK_INFO,...(r.info||{}),name:r.name},detail:r.detail||null,popD:r.pop||null,
+  pkg:k?k.package:null,cnt:{detail:k?k.detail_left:0,pop:k?k.pop_left:0},helper:k?k.helper_left:0,
+  st,order:orders.find(o=>o.product_id===r.id)||null}}
+
+/* 불러오기 */
+async function loadAll(){
+ const c=await q(sb.from('companies').select('*').eq('owner_id',S.user.id).maybeSingle());
+ S.company=c?toCompany(c):null;S.P=[];
+ if(!c)return;
+ const [prods,assets,pkgs,orders]=await Promise.all([
+  q(sb.from('products').select('*').eq('company_id',c.id).order('created_at',{ascending:false})),
+  q(sb.from('assets').select('*')),
+  q(sb.from('product_packages').select('*')),
+  q(sb.from('print_orders').select('*').eq('company_id',c.id).order('created_at',{ascending:false})),
+ ]);
+ S.P=prods.map(r=>toP(r,assets,pkgs,orders))}
+async function reloadPackage(p){ // 횟수는 서버만 바꿀 수 있어서, 바뀐 뒤에는 다시 읽어 와요
+ const k=await q(sb.from('product_packages').select('*').eq('product_id',p.id).maybeSingle());
+ p.pkg=k?k.package:null;p.cnt={detail:k?k.detail_left:0,pop:k?k.pop_left:0};p.helper=k?k.helper_left:0}
+async function reloadAssets(p){const rows=await q(sb.from('assets').select('*').eq('product_id',p.id));rows.forEach(a=>{p.st[a.kind]=a.status})}
+
+/* 저장하기 */
+async function saveCompany(c){
+ const row={name:c.name.trim(),tel:c.tel.trim(),biz_no:c.biz.trim(),ceo:c.ceo.trim(),gln:c.gln.trim()||null,maker:c.maker.trim()||c.name.trim(),color:c.color};
+ let data;
+ if(S.company)data=await q(sb.from('companies').update(row).eq('id',S.company.id).select().single());
+ else{
+  try{data=await q(sb.from('companies').insert(row).select().single())}
+  catch(e){if(e.code!=='23505')throw e; // 다른 창에서 이미 만들었으면 그걸 고쳐요
+   const old=await q(sb.from('companies').select('id').eq('owner_id',S.user.id).single());
+   data=await q(sb.from('companies').update(row).eq('id',old.id).select().single())}}
+ S.company=toCompany(data)}
+/* 자료 상태 바꾸기: none(아직) · review(만들어 놨어요) · done(확정) · changed(가격이 바뀌었어요) */
+async function setStatus(p,kind,status){if(p.st[kind]===status)return;
+ await q(sb.from('assets').update({status}).eq('product_id',p.id).eq('kind',kind));p.st[kind]=status}
+/* AI로 만들기 횟수 1회 쓰기. 성공하면 true. 횟수가 없으면 안내를 띄우고 false */
+async function spend(p,kind){
+ try{p.cnt[kind]=await q(sb.rpc('use_credit',{p_product_id:p.id,p_kind:kind}));return true}
+ catch(e){if(/NO_CREDIT/.test(e.message||'')){p.cnt[kind]=0;noCredit(kind)}else saveFail(e);return false}}
+function noCredit(kind){const nm=kind==='detail'?'상세페이지':'POP';
+ S.overlay=()=>`<div class="ov"><div class="card stack" role="dialog" aria-label="횟수 안내">
+ <h2>횟수를 다 썼어요</h2><p style="margin:0">${nm} AI로 만들기 횟수가 남아 있지 않아요. 3회 추가권을 사면 다시 만들 수 있어요.</p>
+ <div class="row" style="justify-content:flex-end"><button class="btn ghost" onclick="S.overlay=null;render()">닫기</button><button class="btn amber" onclick="S.overlay=null;startFlow('addon',{k:'${kind}'})">3회 추가권 사기</button></div></div></div>`;
+ render()}
+/* 지난 기록 남기기. 기록이 안 남아도 하던 일은 막지 않아요.
+   (횟수 쓰기·구매 기록은 서버 함수가 직접 남겨요) */
+function log(t,pid){if(!S.company)return;
+ sb.from('activity_log').insert({company_id:S.company.id,product_id:pid||null,message:t})
+  .then(r=>{if(r.error)console.warn('지난 기록 저장 실패',r.error)},e=>console.warn('지난 기록 저장 실패',e))}
+
+/* 자동 저장: 상세페이지·POP를 고치면 0.8초 뒤에 한 번에 저장해요 */
+const dirty=new Map(); // 상품 id → 저장할 것('detail','pop')
+let saveT=null,saving=Promise.resolve();
+function markDirty(p,kind){if(!dirty.has(p.id))dirty.set(p.id,new Set());dirty.get(p.id).add(kind)}
+function saveSoon(p,kind){markDirty(p,kind);clearTimeout(saveT);saveT=setTimeout(()=>flushSaves().catch(saveFail),800)}
+function flushSaves(){clearTimeout(saveT);const run=saving.then(doFlush);saving=run.catch(()=>{});return run}
+async function doFlush(){
+ for(const [pid,kinds] of [...dirty]){dirty.delete(pid);
+  const p=S.P.find(x=>x.id===pid);if(!p)continue;
+  const patch={};if(kinds.has('detail'))patch.detail=p.detail;if(kinds.has('pop'))patch.pop=p.popD;
+  try{await q(sb.from('products').update(patch).eq('id',pid))}
+  catch(e){kinds.forEach(k=>markDirty(p,k));throw e}}} // 실패하면 다음에 다시 저장해요
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&dirty.size)flushSaves().catch(()=>{})});
+
+/* ===== 로그인·가입 =====
+   지금: Supabase Auth 의 이메일+비밀번호를 써요.
+   실서비스: 샵바이 회원 로그인으로 바뀌어요. 그때는 아래 auth… 네 함수 안쪽만 바꾸면 돼요.
+            (샵바이 회원번호는 companies.shopby_member_no 에 서버가 채워요) */
+async function authSession(){const {data,error}=await sb.auth.getSession();if(error)throw error;return data.session?data.session.user:null}
+async function authSignIn(email,pw){const {data,error}=await sb.auth.signInWithPassword({email,password:pw});if(error)throw authErr(error);return data.user}
+async function authSignUp(email,pw,meta){const {data,error}=await sb.auth.signUp({email,password:pw,options:{data:meta}});if(error)throw authErr(error);
+ return{user:data.user,needConfirm:!data.session}} // needConfirm: 이메일 확인을 켜 둔 경우
+async function authSignOut(){const {error}=await sb.auth.signOut();if(error)console.warn(error)}
+function authErr(e){const m=(e.message||'').toLowerCase();
+ e.friendly=isNet(e)?'연결이 안 됐어요. 인터넷 연결을 확인해 주세요'
+  :m.includes('invalid login')?'아이디나 비밀번호가 맞지 않아요'
+  :m.includes('already')&&m.includes('registered')?'이미 가입한 이메일이에요. 로그인해 주세요'
+  :m.includes('not confirmed')?'이메일 확인이 아직 안 됐어요. 받은 편지의 버튼을 눌러 주세요'
+  :m.includes('rate limit')||e.status===429?'요청이 너무 많았어요. 잠시 뒤에 다시 해 주세요'
+  :m.includes('password')?'비밀번호를 8자 이상, 숫자를 섞어서 정해 주세요'
+  :m.includes('email')?'이메일 주소를 다시 확인해 주세요'
+  :'잘 안 됐어요. 잠시 뒤에 다시 해 주세요';
+ return e}
+const okEmail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v||'').trim());
+const okPw=v=>/^(?=.*\d).{8,}$/.test(v||'');
+async function doLogin(){
+ const email=document.getElementById('li').value.trim(),pw=document.getElementById('lp').value;
+ if(!email||!pw){toast('아이디와 비밀번호를 넣어 주세요');return}
+ if(S.busy)return;S.busy=true;const b=document.getElementById('loginBtn');if(b)b.disabled=true;
+ try{S.user=await authSignIn(email,pw);await enterApp()}
+ catch(e){e&&e.friendly?toast(e.friendly,4000):loadFail(e);const b2=document.getElementById('loginBtn');if(b2)b2.disabled=false}
+ finally{S.busy=false}}
+/* 로그인된 뒤: 업체 정보가 있으면 홈, 없으면 업체 정보 넣기부터 */
+async function enterApp(){await loadAll();
+ if(S.company)go('home');
+ else startFlow('company',{c:{...blankCompany(),tel:(S.user.user_metadata&&S.user.user_metadata.phone)||''}})}
+async function logout(){try{await flushSaves()}catch(e){}
+ await authSignOut();S=init();S.screen='login';render();window.scrollTo(0,0)}
+
+/* ===== 나중에 진짜 기능을 끼울 자리 =====
+   지금은 모두 예시예요. 함수 이름과 돌려주는 모양만 지키면 안쪽을 바꿔 끼울 수 있어요.
+   (결제는 아래 "결제" 칸의 chargeDemo, 로그인은 위 "로그인·가입" 칸에 있어요) */
+// 1) 사진에서 상품 정보 읽기 (AI). front/back: 고른 사진. 돌려주는 것: SAMPLE 과 같은 모양
+async function aiReadLabel(front,back){return clone(SAMPLE)}
+// 2) 상세페이지 만들기 (AI). 돌려주는 것: {th, pts, blocks:[{id,t,title,body,hue}]}
+//    부르기 전에 use_credit 으로 1회를 이미 썼어요.
+//    실서비스에서는 서버(Edge Function)에서 "횟수 쓰기 + 만들기"를 한 번에 하는 게 안전해요.
+async function aiMakeDetail(p,{pts,th}){return{th,pts,blocks:blocksFor(p.info)}}
+// 3) POP 문구 3개 만들기 (AI). 돌려주는 것: 문구 배열. 부르기 전에 use_credit 으로 1회를 이미 썼어요.
+async function aiMakePop(p,{shape,inc}){return PHR.slice()}
+// 4) 말로 부탁하기 (AI, 횟수 안 씀). 블록 b 를 바로 고쳐요. 못 고치면 {msg:'까닭'} 을 돌려줘요
+async function aiRewrite(b,how,text){
+ if(how==='short'){const s=b.body.split(/(?<=[.요])\s/)[0];if(s===b.body)return{msg:'더 줄일 곳이 없어요'};b.body=s}
+ if(how==='soft'){b.body=b.body.replace(/요\.?$/,'요.')+' 편하게 드셔 보세요.'}
+ if(how==='loud'){b.loud=true;if(!/!$/.test(b.title))b.title+='!'}
+ if(how==='free'){b.body='아침마다 고민이셨죠? '+b.body}}
+// 5) 파일 받기. what: 'proposal-ppt' | 'proposal-pdf' | 'hanaro-form' | 'hanaro-sheet' | 'receipt'
+function downloadFile(what,id){toast(what==='receipt'?'체험판이라 영수증은 받아지지 않아요':'체험판이라 파일은 받아지지 않아요')}
+// 6) 휴대폰 본인 확인 문자 보내기
+function sendPhoneCode(){const d=S.wiz.d;if(!(d.ph||'').trim()){toast('휴대폰 번호를 넣어 주세요');return}
+ d.sent=1;d.code='123456';render();toast('인증번호를 보냈어요 (체험판: 123456)')}
+// 7) 로고 올리기 (파일 보관함은 아직 없어요)
+function uploadLogo(inp){if(inp.files&&inp.files[0])toast('로고를 골랐어요. 체험판이라 보관되지는 않아요',4000)}
+
+/* ===== 공통 ===== */
+let toastT;
+function toast(m,ms=2600){clearTimeout(toastT);let el=document.querySelector('.toast');if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=m;el.hidden=false;toastT=setTimeout(()=>el.hidden=true,ms)}
+function go(screen,extra={}){
+ if(S.wiz&&screen!=='wiz'){const F=FLOWS[S.wiz.flow];F.leave&&F.leave(S.wiz);S.wiz=null}
+ if(dirty.size)flushSaves().catch(saveFail);
+ Object.assign(S,{screen},extra);S.sel=null;render();window.scrollTo(0,0);
+}
+function openProduct(id){go('product',{pid:id})}
+function render(){
+ const app=document.getElementById('app');
+ const v=VIEWS[S.screen]?VIEWS[S.screen]():'';
+ app.innerHTML=demoBar()+topbar()+`<main class="wrap">${v}</main>`+(S.screen==='wiz'?wizActions():'')+(S.help?helpModal():'')+(S.overlay?S.overlay():'');
+}
+function demoBar(){return `<div class="demo"><span>AI 결과·결제·파일 받기는 예시예요. 입력한 내용은 저장돼요.</span></div>`}
+function topbar(){
+ const inApp=!!S.company&&!['login','boot','bootfail','setup'].includes(S.screen)&&!(S.wiz&&(S.wiz.flow==='signup'||S.wiz.flow==='company'));
+ return `<header class="top"><div class="in">
+ <button class="logo" onclick="${inApp?"go('home')":''}" aria-label="홈으로">식품 콘텐츠 <b>원스톱</b></button>
+ ${inApp?`<button class="nav" onclick="go('home')">홈</button><button class="nav" onclick="openMe()">내 정보</button>`:''}
+ <button class="helpbtn" onclick="S.help=true;render()">도움 요청</button></div></header>`}
+function helpModal(){
+ const p=cur();const prem=p&&p.pkg==='프리미엄';
+ return `<div class="ov" onclick="if(event.target===this){S.help=false;render()}"><div class="card stack help" role="dialog" aria-label="도움 요청">
+ <h2>무엇을 도와드릴까요?</h2>
+ <div class="big3">
+  <button onclick="toast('전화번호: 1588-0000 (평일 9시~6시)')"><b>전화로 물어보기</b><small>1588-0000 · 평일 9시~6시</small></button>
+  <button onclick="toast('이 화면 설명을 여는 곳이에요 (체험판)')"><b>이 화면 설명 보기</b><small>지금 보고 있는 화면을 그림으로 알려 드려요</small></button>
+  <button onclick="${prem?"toast('담당자가 1일 안에 연락드릴게요');S.help=false;render()":"toast('프리미엄 패키지에 들어 있어요. 다른 패키지는 상담 후 따로 신청해요')"}"><b>담당자가 대신 해주세요</b><small>${prem?'프리미엄 패키지에 1회 들어 있어요':'프리미엄 패키지에 들어 있어요'}</small></button>
+ </div>
+ <button class="btn ghost" onclick="S.help=false;render()">닫기</button></div></div>`}
+
+/* ===== 마법사(단계 화면) ===== */
+function startFlow(flow,data={},i=0){
+ if(S.wiz){const F=FLOWS[S.wiz.flow];F.leave&&F.leave(S.wiz)}
+ S.wiz={flow,i,d:data,tok:Math.random()};S.screen='wiz';S.sel=null;enterStep();render();window.scrollTo(0,0)}
+function enterStep(){const w=S.wiz,st=FLOWS[w.flow].steps[w.i];st.enter&&st.enter(w.d);
+ if(st.auto){const tok=w.tok=Math.random();setTimeout(()=>{if(S.wiz&&S.wiz.tok===tok){wNext()}},st.auto)}}
+/* [다음]: before(저장 등)가 끝나야 넘어가요. before 가 false 를 돌려주거나 실패하면 그 자리에 있어요 */
+async function wNext(){const w=S.wiz;if(!w||S.busy)return;const F=FLOWS[w.flow],st=F.steps[w.i];
+ if(st.ok&&!st.ok(w.d))return;
+ setBusy(true);
+ try{
+  if(st.before&&await st.before(w.d)===false)return;
+  if(S.wiz!==w)return;
+  if(w.i>=F.steps.length-1){await F.finish(w.d);return}
+  w.i++;enterStep();render();window.scrollTo(0,0)
+ }catch(e){e&&e.friendly?toast(e.friendly,4000):saveFail(e)}
+ finally{setBusy(false)}}
+function wPrev(){const w=S.wiz;if(!w||S.busy)return;const F=FLOWS[w.flow];
+ let i=w.i-1;while(i>=0&&F.steps[i].auto)i--;
+ if(i<0){F.back?F.back():go('home');return}
+ w.i=i;w.tok=Math.random();enterStep();render();window.scrollTo(0,0)}
+function setBusy(b){S.busy=b;const btn=document.getElementById('nextBtn');if(!btn)return;if(b)btn.disabled=true;else upd()}
+function upd(){const w=S.wiz;if(!w)return;const st=FLOWS[w.flow].steps[w.i];const b=document.getElementById('nextBtn');if(b)b.disabled=S.busy||(st.ok?!st.ok(w.d):false)}
+function setD(k,v){S.wiz.d[k]=v;upd()}
+function setDR(k,v){S.wiz.d[k]=v;render()}
+function togD(k,v){const a=S.wiz.d[k]||(S.wiz.d[k]=[]);const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);render()}
+const VIEWS={};
+VIEWS.wiz=()=>{const w=S.wiz,F=FLOWS[w.flow],st=F.steps[w.i];const sub=F.sub&&F.sub();
+ return `<div class="${st.wide?'':'narrow'}"><div class="flowhead">
+ <div class="crumb">${F.name}${sub?' · '+esc(sub):''}</div>
+ <div class="stepn">${F.steps.length}단계 중 ${w.i+1}단계</div>
+ <ol class="dots">${F.steps.map((s,j)=>`<li class="${j<w.i?'done':j===w.i?'now':''}">${s.short||s.title}</li>`).join('')}</ol>
+ <h1>${st.title}</h1>${st.lead?`<p class="lead">${typeof st.lead==='function'?st.lead(w.d):st.lead}</p>`:''}</div>
+ ${st.body(w.d)}</div>`};
+function wizActions(){const w=S.wiz,F=FLOWS[w.flow],st=F.steps[w.i];if(st.auto)return '';
+ const ok=(st.ok?st.ok(w.d):true)&&!S.busy;const last=w.i===F.steps.length-1;
+ return `<div class="actions"><div class="in">
+ ${st.later?`<button class="link later" onclick="${st.later}">나중에 할게요</button>`:''}
+ ${st.noPrev?'':`<button class="btn ghost" onclick="wPrev()">이전</button>`}
+ <button class="btn big" id="nextBtn" ${ok?'':'disabled'} onclick="wNext()">${st.next?(typeof st.next==='function'?st.next(w.d):st.next):last?'마치기':'다음'}</button></div></div>`}
+const pickCard=(on,title,small,click,extra='')=>`<button class="pick ${on?'on':''}" onclick="${click}"><span class="row" style="gap:10px"><span class="tick">${on?'✓':''}</span><b>${title}</b>${extra}</span>${small?`<small>${small}</small>`:''}</button>`;
+const making=(msg,sub,dur=2.4)=>`<div class="card"><h2>${msg}</h2><div class="prog" style="--dur:${dur}s"><i></i></div><p class="mini">${sub}</p></div>`;
+
+/* ===== 결제 =====
+   지금: 가짜 결제창 → [결제 마치기]를 누르면 체험용 함수(demo_buy_package / demo_buy_addon)로 바로 붙여요.
+   실서비스: chargeDemo() 안쪽을 "샵바이 결제창 열기"로 바꿔요. 결제가 끝나면 샵바이 웹훅(shopby-webhook)이
+            grant_package / grant_addon 을 불러서 횟수를 붙여요. 화면은 끝난 뒤 reloadPackage(p)로 다시 읽기만 하면 돼요.
+   pay(job) 은 결제가 끝나면 true, 취소하면 false 를 돌려줘요.
+   job: {title, price, product, pkg:'실버'|'골드'|'프리미엄'} 또는 {title, price, product, kind:'detail'|'pop'} */
+function pay(job){return new Promise(res=>{S.pay={job,res,going:false};S.overlay=payOverlay;render()})}
+function payOverlay(){const x=S.pay;if(!x)return '';const off=x.going?'disabled':'';
+ return `<div class="ov"><div class="card stack" role="dialog" aria-label="결제 창">
+ <span class="chip gray" style="align-self:flex-start">결제 회사 창 (체험판)</span>
+ <h2>${esc(x.job.title)}</h2><div class="price" style="font-size:28px;font-weight:800">${x.job.price}</div>
+ <p class="mini">실제 서비스에서는 여기서 카드 번호를 넣어요. 체험판이라 실제로 결제되지 않아요.</p>
+ <div class="row"><button class="btn ghost" ${off} onclick="payCancel()">취소</button><button class="btn big" ${off} onclick="payConfirm()">결제 마치기</button></div></div></div>`}
+function payCancel(){const x=S.pay;if(!x||x.going)return;S.pay=null;S.overlay=null;render();x.res(false)}
+async function payConfirm(){const x=S.pay;if(!x||x.going)return;x.going=true;render();
+ try{await chargeDemo(x.job);S.pay=null;S.overlay=null;x.res(true)}
+ catch(e){x.going=false;render();saveFail(e)}}
+async function chargeDemo(job){ // 체험용. 실서비스 전에 바꿔 끼워요
+ if(job.pkg)await q(sb.rpc('demo_buy_package',{p_product_id:job.product.id,p_package:job.pkg}));
+ else await q(sb.rpc('demo_buy_addon',{p_product_id:job.product.id,p_kind:job.kind}));
+ await reloadPackage(job.product)}
+const payBody=d=>`<div class="stack"><div class="card"><div class="row" style="justify-content:space-between"><span>${esc(d.what)}</span><b style="font-size:22px">${d.price}</b></div></div>
+ <div class="grid2">${['신용카드','계좌이체','카카오페이','네이버페이'].map(m=>pickCard(d.pay===m,m,'',`setDR('pay','${m}')`)).join('')}</div>
+ <p class="mini">결제는 이 사이트에서 바로 해요. 카드 번호 넣는 창만 따로 떠요.</p></div>`;
+
+/* ===== 흐름 정의 ===== */
+const FLOWS={};
+FLOWS.signup={name:'가입하기',back:()=>go('login'),steps:[
+ {title:'휴대폰으로 본인 확인을 해요',short:'본인 확인',ok:d=>d.code&&d.code.length===6,body:d=>`<div class="stack card">
+  <div class="field"><label for="ph">휴대폰 번호</label><div class="row"><input id="ph" class="inp" inputmode="tel" autocomplete="tel" style="flex:1;min-width:0" placeholder="예: 010-1234-5678" value="${esc(d.ph||'')}" oninput="setD('ph',this.value)"><button class="btn soft" onclick="sendPhoneCode()">인증번호 받기</button></div></div>
+  ${d.sent?`<div class="field"><label for="cd">문자로 온 인증번호 6자리</label><input id="cd" class="inp" inputmode="numeric" value="${esc(d.code||'')}" oninput="setD('code',this.value)"></div>`:''}</div>`},
+ {title:'아이디와 비밀번호를 정해요',short:'아이디·비밀번호',ok:d=>okEmail(d.email)&&okPw(d.pw)&&(d.nm||'').trim(),body:d=>`<div class="stack card">
+  <div class="field"><label for="uid">아이디 (이메일)</label><input id="uid" type="email" inputmode="email" autocomplete="username" class="inp" placeholder="예: hong@example.com" value="${esc(d.email||'')}" oninput="setD('email',this.value)"><span class="hint">로그인할 때 쓰는 이메일 주소예요</span></div>
+  <div class="field"><label for="upw">비밀번호</label><input id="upw" type="password" autocomplete="new-password" class="inp" value="${esc(d.pw||'')}" oninput="setD('pw',this.value)"><span class="hint">8자 이상, 숫자를 섞어 주세요</span></div>
+  <div class="field"><label for="unm">이름</label><input id="unm" class="inp" autocomplete="name" placeholder="예: 홍길동" value="${esc(d.nm||'')}" oninput="setD('nm',this.value)"></div></div>`},
+ {title:'약관에 동의해 주세요',short:'약관 동의',ok:d=>d.agree,next:'가입하기',body:d=>`<div class="stack">
+  <label class="cbx"><input type="checkbox" ${d.agree?'checked':''} onchange="setDR('agree',this.checked)"> 모두 동의해요</label>
+  <div class="card mini">이용약관 (필수) · 개인정보 수집·이용 (필수) · 광고 문자 받기 (선택)</div></div>`},
+],finish:async d=>{
+ const r=await authSignUp(d.email.trim(),d.pw,{name:d.nm.trim(),phone:(d.ph||'').trim()});
+ if(r.needConfirm){ // Supabase 에서 이메일 확인을 켜 둔 경우
+  S.wiz=null;go('done',{done:{title:'이메일을 확인해 주세요',body:`${esc(d.email.trim())} 주소로 확인 편지를 보냈어요. 편지 안의 버튼을 누른 다음 로그인해 주세요.`,btn:'로그인 화면으로',to:"go('login')"}});return}
+ S.user=r.user;S.P=[];S.company=null;
+ startFlow('company',{c:{...blankCompany(),tel:(d.ph||'').trim()}})}};
+
+/* 업체 정보 3단계. 가입 직후(처음)와 [업체 정보 고치기] 둘 다 여기로 와요. 마지막에 한 번에 저장해요 */
+FLOWS.company={name:'업체 정보 넣기',sub:()=>S.company?'':'처음 한 번만 해요',back:()=>S.company?openMe():logout(),steps:[
+ {title:'업체 이름과 연락처',short:'이름·연락처',ok:d=>d.c.name.trim()&&d.c.tel.trim(),body:d=>`<div class="stack card">
+  <div class="field"><label for="cn">업체 이름</label><input id="cn" class="inp" placeholder="예: ○○농협 가공사업소" value="${esc(d.c.name)}" oninput="S.wiz.d.c.name=this.value;upd()"></div>
+  <div class="field"><label for="ct">담당자 연락처</label><input id="ct" class="inp" inputmode="tel" placeholder="예: 010-1234-5678" value="${esc(d.c.tel)}" oninput="S.wiz.d.c.tel=this.value;upd()"></div></div>`},
+ {title:'사업자 정보',short:'사업자 정보',ok:d=>d.c.biz.trim()&&d.c.ceo.trim(),enter:d=>{if(!d.c.maker.trim())d.c.maker=d.c.name.trim()},body:d=>`<div class="stack card">
+  <div class="field"><label for="cb">사업자등록번호</label><input id="cb" class="inp" placeholder="예: 123-45-67890" value="${esc(d.c.biz)}" oninput="S.wiz.d.c.biz=this.value;upd()"></div>
+  <div class="field"><label for="cc">대표자 이름</label><input id="cc" class="inp" placeholder="예: 김농협" value="${esc(d.c.ceo)}" oninput="S.wiz.d.c.ceo=this.value;upd()"></div>
+  <div class="field"><label for="cg">GLN 번호</label><input id="cg" class="inp" placeholder="모르면 비워 두세요" value="${esc(d.c.gln)}" oninput="S.wiz.d.c.gln=this.value"><span class="hint">하나로마트 서류 낼 때 필요해요. 나중에 넣어도 돼요.</span></div>
+  <div class="field"><label for="cm">제조원</label><input id="cm" class="inp" value="${esc(d.c.maker)}" oninput="S.wiz.d.c.maker=this.value"></div></div>`},
+ {title:'로고와 대표 색',short:'로고·색',next:'다 넣었어요',body:d=>`<div class="stack">
+  <label class="drop" style="min-height:150px"><input type="file" accept="image/*" hidden onchange="uploadLogo(this)"><span class="cam">+</span><b>로고 파일 올리기</b><span class="mini">없으면 건너뛰어도 돼요</span></label>
+  <div class="card"><b>대표 색</b><p class="mini" style="margin:2px 0 10px">자료를 만들 때 이 색을 써요</p><div class="row">${COLORS.map(c=>`<button class="swatch ${d.c.color===c?'on':''}" style="background:${c}" aria-label="색 ${c}" onclick="S.wiz.d.c.color='${c}';render()"></button>`).join('')}</div></div></div>`},
+],finish:async d=>{const first=!S.company;
+ await saveCompany(d.c);S.wiz=null;
+ if(first){log('가입을 마쳤어요');go('done',{done:{title:'가입을 마쳤어요',body:'이제 상품 사진을 올려서 자료를 만들 수 있어요.',btn:'홈으로',to:"go('home')"}})}
+ else{log('업체 정보를 고쳤어요');await openMe();toast('업체 정보를 고쳤어요')}}};
+
+/* 상품 등록 5단계 */
+FLOWS.register={name:'새 상품 등록하기',back:()=>go('home'),steps:[
+ {title:'상품 사진 2장을 올려 주세요',short:'사진 올리기',lead:'포장 앞면과 뒷면(표시사항)이 잘 보이게 찍어 주세요. 글씨는 AI가 읽어요.',ok:d=>d.front&&d.back,
+  body:d=>`<div class="grid2">${['front','back'].map(k=>`<label class="drop ${d[k]?'ok':''}"><input type="file" accept="image/*" hidden onchange="upPhoto('${k}',this)">
+   ${d[k]?(d[k]===1?`<div class="boxart" style="--c:#2E7D5B">농협<br>저당 쌀<br>시리얼</div><b>${k==='front'?'앞면':'뒷면'} 올렸어요</b>`:`<img src="${d[k]}" alt=""><b>${k==='front'?'앞면':'뒷면'} 올렸어요</b>`)
+   :`<span class="cam">+</span><b>${k==='front'?'앞면 사진':'뒷면 사진 (표시사항)'}</b><span class="mini">눌러서 사진 고르기</span>`}</label>`).join('')}</div>
+   <p style="margin-top:16px">사진이 없으면 <button class="link" onclick="S.wiz.d.front=1;S.wiz.d.back=1;S.wiz.d.reread=1;render()">예시 사진으로 해보기</button></p>`,
+  before:async d=>{if(!d.info||d.reread){d.info=await aiReadLabel(d.front,d.back);d.reread=0}}},
+ {title:'사진에서 읽은 내용이 맞나요?',short:'내용 확인',lead:'틀린 곳만 [고치기]를 눌러 고쳐 주세요.',ok:d=>(d.info.name||'').trim(),body:d=>`<div class="card">${[
+   ['name','상품 이름'],['vol','용량'],['barcode','바코드'],['maker','만든 곳'],['raw','원재료'],['allergy','알레르기'],['nutri','영양 정보'],['cert','인증']].map(([k,l])=>
+   `<div class="crow"><span class="k">${l}</span>${d.edit===k?`<input class="inp" id="e_${k}" value="${esc(d.info[k])}" oninput="S.wiz.d.info['${k}']=this.value;upd()"><button class="btn sm" onclick="setDR('edit',null)">다 했어요</button>`
+   :`<span>${esc(d.info[k])}</span><button class="btn sm ghost" onclick="setDR('edit','${k}')">고치기</button>`}</div>`).join('')}</div>`},
+ {title:'이 상품의 장점 3가지',short:'장점 3가지',lead:'사진을 보고 AI가 골랐어요. 마음에 안 들면 바꿔 쓰세요. 모든 자료에 이 장점이 들어가요.',
+  ok:d=>d.info.pros.every(x=>x.trim()),body:d=>`<div class="stack">${d.info.pros.map((x,i)=>`<div class="field"><label for="pr${i}">장점 ${i+1}</label><input id="pr${i}" class="inp" value="${esc(x)}" oninput="S.wiz.d.info.pros[${i}]=this.value;upd()"></div>`).join('')}</div>`},
+ {title:'표시사항을 확인해 주세요',short:'표시사항 확인',lead:'법으로 꼭 들어가야 하는 내용이에요. 자료에는 이 내용 그대로 들어가고, 따로 고칠 수 없어요.',ok:d=>d.chk,
+  body:d=>`<div class="stack"><div class="card">${[['원재료',d.info.raw],['알레르기',d.info.allergy],['영양 정보',d.info.nutri],['인증',d.info.cert],['만든 곳',d.info.maker]].map(([k,v])=>`<div class="crow" style="grid-template-columns:150px minmax(0,1fr)"><span class="k">${k}</span><span>${esc(v)}</span></div>`).join('')}</div>
+  <label class="cbx"><input type="checkbox" ${d.chk?'checked':''} onchange="setDR('chk',this.checked)"> 모두 확인했어요</label>
+  <p class="mini">틀린 곳이 있으면 [이전]을 눌러 2단계에서 고쳐 주세요.</p></div>`},
+ {title:'가격을 넣어 주세요',short:'가격 넣기',lead:'하나로마트용 가격이에요. 나중에 바꿔도 돼요.',next:'등록 마치기',ok:d=>d.info.sup>0&&d.info.sell>0,
+  body:d=>`<div class="stack card"><div class="grid2">
+   <div class="field"><label for="sup">공급가 (원)</label><input id="sup" class="inp num" inputmode="numeric" value="${d.info.sup}" oninput="S.wiz.d.info.sup=+this.value.replace(/\\D/g,'');document.getElementById('mg').textContent=margin(S.wiz.d.info.sup,S.wiz.d.info.sell)+'%';upd()"></div>
+   <div class="field"><label for="sell">판매가 (원)</label><input id="sell" class="inp num" inputmode="numeric" value="${d.info.sell}" oninput="S.wiz.d.info.sell=+this.value.replace(/\\D/g,'');document.getElementById('mg').textContent=margin(S.wiz.d.info.sup,S.wiz.d.info.sell)+'%';upd()"></div></div>
+   <div class="say">매익율은 <b id="mg" class="num">${margin(d.info.sup,d.info.sell)}%</b> 예요. 자동으로 계산해요.</div></div>`},
+],finish:async d=>{const {name,...info}=d.info; // 이름은 name 칸에, 나머지는 info 칸에 저장해요
+ const row=await q(sb.from('products').insert({company_id:S.company.id,name:name.trim(),info}).select().single());
+ S.P.unshift(toP(row)); // 자료 6줄은 DB가 자동으로 만들어요
+ log(row.name+'을(를) 등록했어요',row.id);S.pid=row.id;S.wiz=null;go('product');toast('상품을 등록했어요')}};
+function upPhoto(k,inp){const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{S.wiz.d[k]=r.result;S.wiz.d.reread=1;render()};r.readAsDataURL(f)}
+
+/* 패키지 고르기·결제 */
+FLOWS.pkg={name:'패키지 고르기',sub:()=>cur().name,back:()=>go('product'),steps:[
+ {title:'이 상품에 붙일 패키지를 골라 주세요',short:'패키지 고르기',lead:'상품 1개에 한 번만 결제해요. 만든 자료는 기한 없이 무료로 보관해요.',ok:d=>d.pkg,wide:true,
+  body:d=>`<div class="grid3">${Object.entries(PKG).map(([k,v])=>`<button class="pick pk ${d.pkg===k?'on':''}" onclick="setDR('pkg','${k}')">
+   <span class="row" style="gap:10px"><span class="tick">${d.pkg===k?'✓':''}</span><b style="font-size:22px">${k}</b>${v.rec?'<span class="chip amber rec">추천</span>':''}</span>
+   <span class="price">${v.price}</span><ul>${v.lines.map(l=>`<li>${l}</li>`).join('')}</ul></button>`).join('')}</div>
+   <div class="say" style="margin-top:16px">글 고치기, 말로 부탁하기, 서류·제안서·박스 그림 다시 뽑기는 횟수를 쓰지 않아요. 횟수를 다 쓰면 <b>3회 추가권</b>을 살 수 있어요.</div>`,
+  before:d=>{d.what=d.pkg+' 패키지 · '+cur().name;d.price=PKG[d.pkg].price}},
+ {title:'어떻게 결제할까요?',short:'결제',ok:d=>d.pay,next:d=>d.price+' 결제하기',body:payBody,
+  before:async d=>{const p=cur();if(await pay({title:d.what,price:d.price,product:p,pkg:d.pkg}))pkgPaid(d,p);return false}},
+],finish:()=>{}};
+function pkgPaid(d,p){S.wiz=null; // 구매 내역·지난 기록은 서버가 남겨요
+ go('done',{done:{title:d.pkg+' 패키지가 붙었어요',body:`이제 ${esc(p.name)}의 자료 6가지를 만들 수 있어요. AI로 만들기는 상세페이지 ${p.cnt.detail}회, POP ${p.cnt.pop}회 남았어요.`,btn:'자료 만들러 가기',to:"go('product')"}})}
+
+/* 3회 추가권 */
+FLOWS.addon={name:'3회 추가권 사기',sub:()=>cur().name,back:()=>go('product'),steps:[
+ {title:'어떤 자료의 횟수를 늘릴까요?',short:'무엇을',ok:d=>d.k,body:d=>`<div class="grid2">${[['detail','상세페이지 3회 추가'],['pop','POP 3회 추가']].map(([k,t])=>pickCard(d.k===k,t,'○만 원 · 기한 없이 써요',`setDR('k','${k}')`)).join('')}</div>`,
+  before:d=>{d.what=(d.k==='detail'?'상세페이지':'POP')+' 3회 추가권 · '+cur().name;d.price='○만 원'}},
+ {title:'어떻게 결제할까요?',short:'결제',ok:d=>d.pay,next:d=>d.price+' 결제하기',body:payBody,
+  before:async d=>{const p=cur();if(await pay({title:d.what,price:d.price,product:p,kind:d.k}))addonPaid(d,p);return false}},
+],finish:()=>{}};
+function addonPaid(d,p){S.wiz=null;
+ go('done',{done:{title:'3회가 늘었어요',body:`${d.k==='detail'?'상세페이지':'POP'} AI로 만들기가 ${p.cnt[d.k]}회 남았어요.`,btn:'상품 화면으로',to:"go('product')"}})}
+
+/* 상세페이지 */
+function blocksFor(info){return[
+ {id:'b1',t:'hero',title:'밀가루 없이, 우리쌀로 만든 아침',body:info.name,hue:0},
+ {id:'b2',t:'text',title:info.pros[0],body:'국산 쌀을 62% 넣어 고소하고 든든해요. 밀가루는 한 톨도 넣지 않았어요.',hue:1},
+ {id:'b3',t:'text',title:info.pros[1],body:'한 번 먹는 양(30g)에 당류는 3g뿐이에요. 아이 간식으로도 마음 놓고 주세요.',hue:2},
+ {id:'b4',t:'text',title:info.pros[2],body:'기름에 튀기지 않고 오븐에 구워서 바삭하고 가벼워요.',hue:3},
+ {id:'b5',t:'text',title:'우유만 부으면 끝',body:'바쁜 아침, 1분이면 한 끼가 준비돼요. 요거트에 뿌려 먹어도 좋아요.',hue:4},
+ {id:'b6',t:'lock',title:'원재료 · 알레르기',body:info.raw+' / '+info.allergy},
+ {id:'b7',t:'lock',title:'영양 정보',body:info.nutri+' · '+info.cert+' 인증 시설에서 만들었어요'},
+]}
+const ARTS=['#E9D8B4','#CFE3D4','#F3E0C7','#DCE7F0','#EAD9E4','#D9E8C9'];
+/* 만든 것을 저장하고 '만들어 놨어요'로 표시해요. 그래야 새로고침해도 이어서 볼 수 있어요.
+   저장이 안 되면 알려 주고, 다음에 고치거나 확정할 때 다시 저장해요 */
+async function keepMade(p,kind){markDirty(p,kind);
+ try{await flushSaves();if(p.st[kind]!=='done')await setStatus(p,kind,'review')}catch(e){saveFail(e)}}
+/* 만들다가 다른 화면으로 가면: 아직 표시가 안 됐을 때만 '만들어 놨어요'로 바꿔요 */
+function leaveMade(kind){return w=>{const p=cur();if(!p)return;
+ if(dirty.size)flushSaves().catch(saveFail);
+ if(w.i===3&&(kind==='detail'?p.detail:p.popD)&&p.st[kind]!=='done'&&p.st[kind]!=='review')
+  setStatus(p,kind,'review').then(()=>{if(S.screen!=='wiz')render()}).catch(saveFail)}}
+FLOWS.detail={name:'상세페이지 만들기',sub:()=>cur().name,back:()=>go('product'),leave:leaveMade('detail'),
+ steps:[
+ {title:'무엇을 가장 내세울까요?',short:'내세울 점',lead:'여러 개 골라도 돼요. 고른 순서대로 앞에 나와요.',ok:d=>(d.pts||[]).length>0,body:d=>`<div class="grid2">${[
+   ['원재료·산지','국산 쌀, 우리 땅에서 난 재료'],['맛·식감','고소하고 바삭한 맛'],['간편함·쓰임새','우유만 부으면 끝, 요거트 토핑'],['건강·안심','저당, 튀기지 않음, HACCP']].map(([t,s])=>pickCard((d.pts||[]).includes(t),t,s,`togD('pts','${t}')`)).join('')}</div>`},
+ {title:'디자인을 골라 주세요',short:'디자인 고르기',lead:d=>`디자인을 고르고 만들면 AI로 만들기 <b>1회</b>를 써요. 지금 <b>${cur().cnt.detail}회</b> 남았어요.`,ok:d=>d.th,next:'이 디자인으로 만들기',wide:true,
+  body:d=>`<div class="grid4">${Object.entries(THEMES).map(([k,t])=>`<button class="pick ${d.th===k?'on':''}" onclick="setDR('th','${k}')">
+   <div style="background:${t.bg};border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px;height:150px">
+    <div style="height:46px;border-radius:6px;background:${t.c}"></div><div style="height:9px;width:80%;border-radius:4px;background:${t.ac}"></div>
+    <div style="height:6px;border-radius:4px;background:${t.ink};opacity:.25"></div><div style="height:6px;width:70%;border-radius:4px;background:${t.ink};opacity:.25"></div></div>
+   <span class="row" style="gap:8px"><span class="tick">${d.th===k?'✓':''}</span><b>${t.name}</b></span></button>`).join('')}</div>`,
+  before:async d=>{const p=cur();
+   if(!await spend(p,'detail'))return false; // 횟수를 쓰는 데 성공해야만 다음으로 가요
+   p.detail=await aiMakeDetail(p,{pts:d.pts,th:d.th});
+   await keepMade(p,'detail')}},
+ {title:'상세페이지를 만들고 있어요',short:'만드는 중',auto:2600,body:()=>making('AI가 글과 사진을 배치하고 있어요','보통 1~2분 걸려요. 체험판은 바로 끝나요. 다른 화면으로 가도 계속 만들어요.',2.5)},
+ {title:'확인하고 고쳐 주세요',short:'확인·고치기',lead:'고칠 부분을 눌러 고르세요. 글 고치기와 말로 부탁하기는 횟수를 쓰지 않아요.',noPrev:true,later:"go('product')",next:'이대로 확정',wide:true,body:()=>editorHTML(cur())},
+ ],finish:async()=>{const p=cur();markDirty(p,'detail');await flushSaves();await setStatus(p,'detail','done');
+  log(p.name+' 상세페이지를 확정했어요',p.id);S.wiz=null;go('product');toast('상세페이지를 확정했어요')}};
+function editorHTML(p){const D=p.detail,t=THEMES[D.th]||THEMES.a;const b=D.blocks.find(x=>x.id===S.sel);
+ return `<div class="ed"><div class="dp" style="--dp-bg:${t.bg};--dp-ac:${t.ac};--dp-ink:${t.ink}">${D.blocks.map(x=>blockHTML(x,t,p)).join('')}</div>
+ <div class="panel card stack">${!b?`<h2>고칠 부분을 눌러 주세요</h2><p class="mini" style="margin:0">왼쪽 미리보기에서 바꾸고 싶은 부분을 누르면 여기에 고치는 버튼이 나와요. 고친 내용은 자동으로 저장돼요.</p>
+   <div class="say">다 마음에 들면 오른쪽 아래 <b>[이대로 확정]</b>을 눌러 주세요.</div>
+   <button class="btn ghost" onclick="remake()">처음부터 다시 만들기 (1회 써요 · ${p.cnt.detail}회 남음)</button>`
+ :b.t==='lock'?`<h2>${esc(b.title)}</h2><div class="say warn">이 부분은 표시사항이라 여기서 고칠 수 없어요. 상품 정보를 고치면 자동으로 같이 바뀌어요.</div><button class="btn ghost" onclick="S.sel=null;render()">다른 부분 고르기</button>`
+ :`<h2>고른 부분: ${esc(b.title)}</h2>
+   ${S.editTxt?`<div class="field"><label for="et">제목</label><input id="et" class="inp" value="${esc(b.title)}"></div><div class="field"><label for="eb">내용</label><textarea id="eb" class="inp" rows="4">${esc(b.body)}</textarea></div><button class="btn" onclick="saveTxt()">다 고쳤어요</button>`
+   :`<div class="tools"><button class="btn soft" onclick="S.editTxt=1;render()">글 고치기</button><button class="btn soft" onclick="bAct('photo')">사진 바꾸기</button>
+   <button class="btn soft" onclick="bAct('up')">위로 올리기</button><button class="btn soft" onclick="bAct('down')">아래로 내리기</button>
+   <button class="btn ghost" style="grid-column:1/-1" onclick="bAct('del')">이 부분 빼기</button></div>
+   <div><b>말로 부탁하기</b><div class="chips" style="margin-top:8px"><button class="btn sm soft" onclick="ask('short')">더 짧게</button><button class="btn sm soft" onclick="ask('soft')">더 부드럽게</button><button class="btn sm soft" onclick="ask('loud')">더 눈에 띄게</button></div>
+   <div class="row" style="margin-top:10px"><input id="askT" class="inp" style="flex:1;min-width:0" placeholder="예: 아이 엄마에게 말하듯 써 줘"><button class="btn sm" onclick="ask('free')">부탁하기</button></div></div>`}`}
+ </div></div>`}
+function blockHTML(x,t,p){const on=S.sel===x.id?' on':'';
+ if(x.t==='hero')return `<div class="blk${on}${x.loud?' loud':''}" onclick="selB('${x.id}')"><div class="art" style="background:${ARTS[x.hue%6]}"><div class="boxart" style="--c:${t.c}">농협<br>저당 쌀<br>시리얼</div></div><h4>${esc(x.title)}</h4><p>${esc(x.body)}</p></div>`;
+ if(x.t==='lock')return `<div class="blk lock${on}" onclick="selB('${x.id}')"><span class="lk">잠김</span><h4>${esc(x.title)}</h4><p>${esc(x.body)}</p></div>`;
+ return `<div class="blk${on}${x.loud?' loud':''}" onclick="selB('${x.id}')"><div class="strip" style="background:${ARTS[x.hue%6]}"></div><h4>${esc(x.title)}</h4><p>${esc(x.body)}</p></div>`}
+function selB(id){S.sel=id;S.editTxt=0;render()}
+/* 아래 고치기 동작은 모두 saveSoon 으로 자동 저장돼요 */
+function saveTxt(){const p=cur(),b=p.detail.blocks.find(x=>x.id===S.sel);b.title=document.getElementById('et').value;b.body=document.getElementById('eb').value;S.editTxt=0;saveSoon(p,'detail');render();toast('고쳤어요')}
+function bAct(a){const p=cur(),B=p.detail.blocks,i=B.findIndex(x=>x.id===S.sel),b=B[i];
+ if(a==='photo'){b.hue++;toast('사진을 바꿨어요')}
+ if(a==='up'&&i>0){[B[i-1],B[i]]=[B[i],B[i-1]]}
+ if(a==='down'&&i<B.length-1&&B[i+1].t!=='lock'){[B[i+1],B[i]]=[B[i],B[i+1]]}
+ if(a==='del'){B.splice(i,1);S.sel=null;toast('이 부분을 뺐어요')}
+ saveSoon(p,'detail');render()}
+async function ask(k){const p=cur(),b=p.detail.blocks.find(x=>x.id===S.sel);
+ const text=k==='free'?document.getElementById('askT').value.trim():'';
+ if(k==='free'&&!text){toast('부탁할 말을 써 주세요');return}
+ const r=await aiRewrite(b,k,text);if(r&&r.msg){toast(r.msg);return}
+ saveSoon(p,'detail');render();toast('부탁한 대로 고쳤어요 (횟수 안 씀)')}
+function remake(){const p=cur();if(p.cnt.detail<1){noCredit('detail');return}
+ startFlow('detail',{pts:p.detail.pts||['원재료·산지'],th:p.detail.th},1)}
+
+/* POP */
+const PHR=['밀가루 없이 우리쌀로!','당 걱정 없는 아침 한 그릇','튀기지 않고 구운 쌀 시리얼'];
+const popData=d=>({shape:d.shape,inc:d.inc||[],phrases:d.phrases||PHR.slice(),ph:d.ph??null}); // products.pop 칸에 저장하는 모양
+FLOWS.pop={name:'POP 만들기',sub:()=>cur().name,back:()=>go('product'),leave:leaveMade('pop'),steps:[
+ {title:'어떤 모양으로 만들까요?',short:'모양·크기',ok:d=>d.shape,body:d=>`<div class="grid3">${[['가격표','A5 · 진열대 앞에 세워요'],['세로 배너','A4 세로 · 매대 옆에 붙여요'],['선반 띠','긴 띠 · 선반 가장자리에 붙여요']].map(([t,s])=>pickCard(d.shape===t,t,s,`setDR('shape','${t}')`)).join('')}</div>`},
+ {title:'무엇을 넣을까요?',short:'넣을 내용',lead:'넣고 싶은 것을 모두 골라 주세요.',ok:d=>(d.inc||[]).length>0,next:'문구 만들기 (1회 써요)',
+  body:d=>`<div class="grid2">${['가격 '+fmt(cur().info.sell)+'원','저당','우리쌀','행사 문구 (1+1 등)'].map(t=>pickCard((d.inc||[]).includes(t),t,'',`togD('inc','${t}')`)).join('')}</div><p class="mini" style="margin-top:12px">지금 POP AI로 만들기가 ${cur().cnt.pop}회 남았어요.</p>`,
+  before:async d=>{const p=cur();
+   if(!await spend(p,'pop'))return false; // 횟수를 쓰는 데 성공해야만 다음으로 가요
+   d.phrases=await aiMakePop(p,d);d.ph=null;p.popD=popData(d);
+   await keepMade(p,'pop')}},
+ {title:'문구를 만들고 있어요',short:'만드는 중',auto:2000,body:()=>making('AI가 문구 3개를 쓰고 있어요','잠시만 기다려 주세요.',1.9)},
+ {title:'마음에 드는 문구를 골라 주세요',short:'문구 고르기',noPrev:true,later:"go('product')",ok:d=>d.ph!=null,next:'이대로 확정',wide:true,
+  body:d=>`<div class="ed" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)"><div class="stack">${(d.phrases||PHR).map((t,i)=>pickCard(d.ph===i,esc(t),'',`pickPhrase(${i})`)).join('')}</div>
+   <div>${popPreview(d)}</div></div>`},
+ ],finish:async d=>{const p=cur();p.popD=popData(d);markDirty(p,'pop');await flushSaves();await setStatus(p,'pop','done');
+  log(p.name+' POP를 확정했어요',p.id);S.wiz=null;go('product');toast('POP를 확정했어요')}};
+function pickPhrase(i){const d=S.wiz.d,p=cur();d.ph=i;p.popD=popData(d);saveSoon(p,'pop');render()} // 고른 문구도 자동 저장
+function popPreview(d){const p=cur();const ph=d.ph!=null?(d.phrases||PHR)[d.ph]:'문구를 골라 주세요';const inc=d.inc||[];
+ const cls=d.shape==='세로 배너'?'banner':d.shape==='선반 띠'?'strip2':'';
+ return `<div class="pop ${cls}"><div class="row" style="gap:6px">${inc.includes('저당')?'<span class="tag">저당</span>':''}${inc.includes('우리쌀')?'<span class="tag">우리쌀</span>':''}</div>
+ <div class="ph">${esc(ph)}</div><div style="font-weight:700">${esc(p.info.name)}</div>${inc.some(x=>x.startsWith('가격'))?`<div class="pr">${fmt(p.info.sell)}<span style="font-size:20px">원</span></div>`:''}${inc.includes('행사 문구 (1+1 등)')?'<div style="color:#C2410C;font-weight:800">이번 주 1+1</div>':''}</div>`}
+
+/* 상품 제안서 */
+FLOWS.proposal={name:'상품 제안서 만들기',sub:()=>cur().name,back:()=>go('product'),steps:[
+ {title:'어디에 낼 제안서인가요?',short:'낼 곳',ok:d=>d.to,body:d=>`<div class="grid3">${[['하나로마트 바이어','하나로마트 양식에 맞춰요'],['온라인몰 MD','사진과 장점 위주로'],['다른 거래처','기본 양식']].map(([t,s])=>pickCard(d.to===t,t,s,`setDR('to','${t}')`)).join('')}</div>`},
+ {title:'미리 보고 확정해 주세요',short:'미리 보기',lead:'상품 정보와 장점으로 자동으로 채웠어요. 다시 뽑기는 무료예요.',next:'이대로 확정',wide:true,body:d=>{const p=cur();return `<div class="thumbs">
+  <div class="slide cover"><span style="opacity:.7">${d.to} 제안</span><div class="t">${esc(p.info.name)}</div><span>${esc(S.company.name)}</span></div>
+  <div class="slide"><div class="t">이 상품의 장점</div>${p.info.pros.map(x=>`<div>· ${esc(x)}</div>`).join('')}</div>
+  <div class="slide"><div class="t">상품 정보</div><div>용량 ${esc(p.info.vol)} · 바코드 ${esc(p.info.barcode)}</div><div>${esc(p.info.nutri)}</div><div class="ln"></div><div class="ln" style="width:70%"></div></div>
+  <div class="slide"><div class="t">가격·납품</div><div>공급가 ${fmt(p.info.sup)}원 · 판매가 ${fmt(p.info.sell)}원</div><div>매익율 ${margin(p.info.sup,p.info.sell)}%</div><div class="ln" style="width:60%"></div></div></div>
+  <button class="btn ghost" style="margin-top:14px" onclick="toast('다시 뽑았어요 (무료)')">다시 뽑기</button>`},
+  before:async()=>{const p=cur();await setStatus(p,'proposal','done');log(p.name+' 상품 제안서를 확정했어요',p.id)}},
+ {title:'제안서를 받아 가세요',short:'받기',next:'다 받았어요',body:()=>`<div class="stack card"><div class="say">확정했어요. 파일로 받아서 바이어에게 보내 주세요.</div>
+  <div class="row"><button class="btn" onclick="downloadFile('proposal-ppt',S.pid)">PPT 파일로 받기</button><button class="btn soft" onclick="downloadFile('proposal-pdf',S.pid)">PDF 파일로 받기</button></div></div>`},
+ ],finish:()=>go('product')};
+
+/* 박스 그림 */
+FLOWS.box={name:'박스 그림 만들기',sub:()=>cur().name,back:()=>go('product'),steps:[
+ {title:'박스 크기를 알려 주세요',short:'크기',ok:d=>d.size,body:d=>`<div class="stack"><div class="grid2">${[['280g × 12개 박스','가로 40 · 세로 30 · 높이 25cm'],['280g × 24개 박스','가로 52 · 세로 40 · 높이 28cm']].map(([t,s])=>pickCard(d.size===t,t,s,`setDR('size','${t}')`)).join('')}</div>
+  <p class="mini">크기를 모르면 인쇄소에 물어보거나 [도움 요청]을 눌러 주세요.</p></div>`},
+ {title:'박스에 무엇을 넣을까요?',short:'넣을 내용',ok:d=>(d.inc||[]).length>0,body:d=>`<div class="grid2">${['상품 이름','로고','바코드','위로 쌓지 마세요','습기 주의','이쪽이 위'].map(t=>pickCard((d.inc||[]).includes(t),t,'',`togD('inc','${t}')`)).join('')}</div>`},
+ {title:'펼친 그림을 확인해 주세요',short:'펼친 그림',lead:'박스를 펼친 모양이에요. 로고 자리와 글씨 위치를 확인해 주세요.',next:'이대로 확정',wide:true,body:d=>{const inc=d.inc||[];const p=cur();return `<div class="dieline card"><div class="dl">
+  <div class="empty"></div><div>윗날개</div><div class="empty"></div><div>윗날개</div>
+  <div class="face front"><b>앞면</b>${inc.includes('로고')?'<span class="chip">로고 자리</span>':''}${inc.includes('상품 이름')?`<span>${esc(p.info.name)}</span>`:''}</div>
+  <div class="face"><b>옆면</b>${inc.includes('바코드')?`<span class="num">||||| ${esc(p.info.barcode)}</span>`:''}</div>
+  <div class="face"><b>뒷면</b>${['위로 쌓지 마세요','습기 주의','이쪽이 위'].filter(x=>inc.includes(x)).map(x=>`<span class="chip amber">${x}</span>`).join('')}</div>
+  <div class="face"><b>옆면</b><span>${esc(S.company.name)}</span></div>
+  <div class="empty"></div><div>아랫날개</div><div class="empty"></div><div>아랫날개</div></div></div>
+  <p class="mini">${d.size} · 이 그림은 무지 박스용 밑그림이에요. 인쇄용 포장 디자인은 다음 단계(2차)에서 만들어요.</p>`}},
+ ],finish:async()=>{const p=cur();await setStatus(p,'box','done');log(p.name+' 박스 그림을 확정했어요',p.id);S.wiz=null;go('product');toast('박스 그림을 확정했어요')}};
+
+/* 하나로마트 서류 */
+const CHK=['바코드 13자리가 맞아요','표시사항이 모두 들어 있어요','공급가·판매가 계산이 맞아요','사업자 정보가 들어 있어요','사진 크기가 기준에 맞아요'];
+FLOWS.hanaro={name:'하나로마트 서류 만들기',sub:()=>cur().name,back:()=>go('product'),steps:[
+ {title:'가격과 배송 방법을 확인해 주세요',short:'가격·배송',ok:d=>d.ship&&d.date,body:d=>{const p=cur();return `<div class="stack"><div class="card">
+  <div class="crow"><span class="k">공급가</span><b class="num">${fmt(p.info.sup)}원</b><span></span></div><div class="crow"><span class="k">판매가</span><b class="num">${fmt(p.info.sell)}원</b><span></span></div>
+  <div class="crow"><span class="k">매익율</span><b class="num">${margin(p.info.sup,p.info.sell)}%</b><span></span></div></div>
+  <div class="grid2">${[['R1','물류센터로 보내요'],['R2','매장으로 바로 보내요']].map(([t,s])=>pickCard(d.ship===t,'배송 '+t,s,`setDR('ship','${t}')`)).join('')}</div>
+  <div class="field"><label for="sd">판매 시작 날짜</label><input id="sd" type="date" class="inp" value="${esc(d.date||'')}" oninput="setD('date',this.value)"></div></div>`}},
+ {title:'서류 2개를 자동으로 검사하고 있어요',short:'자동 검사',ok:d=>d.n>=CHK.length,next:'다음',
+  enter:d=>{d.n=0;const tick=()=>{if(!S.wiz||S.wiz.flow!=='hanaro'||S.wiz.i!==1)return;d.n++;render();if(d.n<CHK.length)setTimeout(tick,450)};setTimeout(tick,450)},
+  body:d=>`<div class="stack"><div class="card"><p class="mini" style="margin-top:0">신규상품 등록 신청서 · 상품 정보표</p><ul class="checks">${CHK.map((c,i)=>`<li class="${i<d.n?'':'wait'}"><span class="ck">${i<d.n?'✓':'…'}</span>${c}</li>`).join('')}</ul></div>
+  ${d.n>=CHK.length?`<div class="say">문제 없어요. 다음으로 가서 서류를 받아 주세요.</div>`:''}</div>`},
+ {title:'서류를 받아서 하나로마트에 내 주세요',short:'받아서 내기',next:'네, 냈어요',body:()=>`<div class="stack"><div class="card stack">
+  <div class="row" style="justify-content:space-between"><b>신규상품 등록 신청서</b><button class="btn sm soft" onclick="downloadFile('hanaro-form',S.pid)">받기</button></div>
+  <div class="row" style="justify-content:space-between"><b>상품 정보표</b><button class="btn sm soft" onclick="downloadFile('hanaro-sheet',S.pid)">받기</button></div></div>
+  <div class="say warn">하나로마트 담당자에게 냈으면 아래 [네, 냈어요]를 눌러 주세요. 낸 날짜를 기록해 둬요.</div></div>`},
+ ],finish:async()=>{const p=cur();await setStatus(p,'hanaro','done');log(p.name+' 하나로마트 서류를 냈어요',p.id);S.wiz=null;go('product');toast('냈다고 기록했어요')}};
+
+/* 발주 */
+FLOWS.order={name:'박스·POP 발주',sub:()=>cur().name,back:()=>go('product'),steps:[
+ {title:'무엇을 몇 개 만들까요?',short:'무엇·몇 개',ok:d=>d.pop>0||d.box>0,body:d=>`<div class="stack card">
+  <div class="field"><label for="oq1">POP (장)</label><input id="oq1" class="inp num" inputmode="numeric" value="${d.pop??100}" oninput="setD('pop',+this.value||0)"></div>
+  <div class="field"><label for="oq2">박스 (개)</label><input id="oq2" class="inp num" inputmode="numeric" value="${d.box??500}" oninput="setD('box',+this.value||0)"></div>
+  <p class="mini">확정한 POP와 박스 그림으로 만들어요.</p></div>`,enter:d=>{d.pop=d.pop??100;d.box=d.box??500}},
+ {title:'어디로 보낼까요?',short:'어디로',ok:d=>(d.addr||'').trim()&&(d.tel||'').trim(),enter:d=>{d.addr=d.addr??'';d.tel=d.tel??S.company.tel},body:d=>`<div class="stack card"><div class="field"><label for="oa">받는 곳</label><input id="oa" class="inp" placeholder="예: ${esc(S.company.name)} (경기도 ○○시 ○○로 12)" value="${esc(d.addr)}" oninput="setD('addr',this.value)"></div>
+  <div class="field"><label for="ot">받는 사람 연락처</label><input id="ot" class="inp" inputmode="tel" value="${esc(d.tel)}" oninput="setD('tel',this.value)"></div></div>`},
+ {title:'언제까지 필요하세요?',short:'언제까지',ok:d=>d.due,next:'발주 요청하기',body:d=>`<div class="stack card"><div class="field"><label for="od">받고 싶은 날짜</label><input id="od" type="date" class="inp" value="${esc(d.due||'')}" oninput="setD('due',this.value)"><span class="hint">인쇄는 보통 5~7일 걸려요</span></div></div>`,
+  before:async d=>{const p=cur();
+   p.order=await q(sb.from('print_orders').insert({company_id:S.company.id,product_id:p.id,pop_qty:d.pop||0,box_qty:d.box||0,address:d.addr.trim(),tel:d.tel.trim(),due_date:d.due}).select().single());
+   p.st.order='done'; // 자료 상태는 DB가 같이 바꿔요
+   log(p.name+' 박스·POP 발주를 요청했어요',p.id)}},
+ {title:'발주를 요청했어요',short:'진행 상황',noPrev:true,next:'상품 화면으로',body:()=>orderTL(cur().order)},
+ ],finish:()=>go('product')};
+/* 진행 단계(stage 1~4)는 담당자가 서버에서 올려요 */
+function orderTL(o){const stage=o?o.stage:1;
+ return `<div class="card"><ol class="tl">${[['요청했어요',o?kdate(o.created_at):''],['인쇄소가 확인했어요','보통 1일 안에'],['만들고 있어요',''],['보냈어요','']].map(([t,s],i)=>`<li class="${i<stage?'done':''}"><span class="ck" style="${i<stage?'':'background:var(--line);color:var(--muted)'}">${i<stage?'✓':i+1}</span><div><b>${t}</b><div class="mini">${s}</div></div></li>`).join('')}</ol>
+ <p class="mini">진행되면 문자로 알려 드려요. 상품 화면에서도 볼 수 있어요.</p></div>`}
+async function openOrder(){const p=cur();
+ try{const r=await q(sb.from('print_orders').select('*').eq('product_id',p.id).order('created_at',{ascending:false}).limit(1));if(r[0])p.order=r[0]}catch(e){loadFail(e)}
+ go('orderView')}
+
+/* ===== 화면 ===== */
+VIEWS.boot=()=>`<div class="narrow"><div class="card"><h2>불러오고 있어요</h2><p class="mini" style="margin:0">잠시만 기다려 주세요.</p></div></div>`;
+VIEWS.bootfail=()=>`<div class="narrow"><div class="card stack"><h2>불러오지 못했어요</h2><p style="margin:0">인터넷 연결을 확인하고 다시 해 주세요.</p><button class="btn" style="align-self:flex-start" onclick="location.reload()">다시 해 보기</button></div></div>`;
+VIEWS.setup=()=>`<div class="narrow"><div class="card stack"><h2>아직 서버에 연결하지 않았어요</h2><p style="margin:0"><b>config.js</b> 파일에 Supabase 주소와 키를 넣어 주세요. 넣는 방법은 README.md 4번에 있어요.</p></div></div>`;
+VIEWS.login=()=>`<div class="login stack"><h1>로그인</h1><p class="lead" style="margin:0">상품 사진 2장으로 상세페이지·POP·서류를 한 곳에서 만들어요.</p>
+ <form class="card stack" onsubmit="event.preventDefault();doLogin()"><div class="field"><label for="li">아이디 (이메일)</label><input id="li" type="email" inputmode="email" autocomplete="username" class="inp" placeholder="예: hong@example.com"></div>
+ <div class="field"><label for="lp">비밀번호</label><input id="lp" type="password" autocomplete="current-password" class="inp"></div>
+ <button class="btn big" id="loginBtn">로그인</button>
+ <div class="or">또는</div><div class="sns"><button type="button" class="btn k" onclick="toast('카카오 로그인은 준비 중이에요')">카카오로 시작하기</button><button type="button" class="btn n" onclick="toast('네이버 로그인은 준비 중이에요')">네이버로 시작하기</button></div></form>
+ <p style="text-align:center">처음이세요? <button class="link" onclick="startFlow('signup',{})">가입하기</button></p></div>`;
+
+function stInfo(p,k){const s=p.st[k];const it=ITEMS.find(i=>i.k===k);
+ if(!p.pkg)return{c:'locked',t:'패키지를 고르면 만들 수 있어요',b:`<button class="btn" onclick="startFlow('pkg',{})">패키지 고르기</button>`};
+ if(s==='done'){if(k==='order')return{c:'done',t:'인쇄소에 요청했어요',b:`<button class="btn ghost" onclick="openOrder()">진행 상황 보기</button>`};
+  return{c:'done',t:'확정했어요',b:`<button class="btn ghost" onclick="openItem('${k}')">보기·고치기</button>`}}
+ if(s==='review')return{c:'review',t:'만들어 놨어요. 확인해 주세요',b:`<button class="btn amber" onclick="openItem('${k}')">확인하기</button>`};
+ if(s==='changed')return{c:'changed',t:'가격이 바뀌었어요. 다시 만들어 주세요',b:`<button class="btn" onclick="redo('${k}')">다시 만들기</button>`};
+ if(it.ai&&p.cnt[k]<1)return{c:'none',t:'횟수를 다 썼어요',b:`<button class="btn amber" onclick="startFlow('addon',{k:'${k}'})">3회 추가권 사기</button>`};
+ if(k==='order'&&!(p.st.pop==='done'||p.st.box==='done'))return{c:'none',t:'POP나 박스 그림을 확정하면 할 수 있어요',b:`<button class="btn" disabled>발주하기</button>`};
+ return{c:'none',t:'아직 안 만들었어요'+(it.ai?` · AI로 만들기 ${p.cnt[k]}회 남음`:''),b:`<button class="btn" onclick="startFlow('${k}',{})">${k==='order'?'발주하기':'만들기'}</button>`}}
+function openItem(k){const p=cur();
+ if(k==='detail'){if(!p.detail){startFlow('detail',{});return}startFlow('detail',{pts:p.detail.pts||['원재료·산지'],th:p.detail.th},3)}
+ else if(k==='pop'){const d=clone(p.popD||{shape:'가격표',inc:['가격 '+fmt(p.info.sell)+'원'],ph:0});if(!d.phrases)d.phrases=PHR.slice();startFlow('pop',d,3)}
+ else startFlow(k,{to:'하나로마트 바이어',size:'280g × 12개 박스',inc:['상품 이름','로고','바코드'],ship:'R1',date:'2026-11-01'},k==='hanaro'?0:k==='proposal'?1:2)}
+async function redo(k){const p=cur();
+ if(k==='pop'||k==='detail'){
+  try{await setStatus(p,k,'review')}catch(e){saveFail(e);return}
+  toast(k==='pop'?'새 가격으로 바꿨어요. 횟수는 안 써요':'새 가격을 넣었어요. 확인해 주세요');render();return}
+ openItem(k)}
+
+VIEWS.home=()=>{const todos=[];S.P.forEach(p=>{const nm=esc(p.name);
+  if(!p.pkg)todos.push([`${nm}: 패키지를 고르면 자료를 만들 수 있어요`,`openProduct('${p.id}')`,'패키지 고르기']);
+  ITEMS.forEach(it=>{if(p.st[it.k]==='review')todos.push([`${nm} ${it.name}: 만들어 놨어요. 확인해 주세요`,`S.pid='${p.id}';openItem('${it.k}')`,'확인하기']);
+   if(p.st[it.k]==='changed')todos.push([`${nm} ${it.name}: 가격이 바뀌었어요. 다시 만들어 주세요`,`openProduct('${p.id}')`,'보러 가기'])})});
+ return `<div class="stack" style="gap:26px"><div><h1>${esc(S.company.name)}님, 안녕하세요</h1><p class="lead" style="margin:0">오늘 할 일을 골라 주세요.</p></div>
+ <button class="newbtn" onclick="startFlow('register',{})"><span class="plus">+</span><span><b>새 상품 등록하기</b><span>사진 2장만 올리면 돼요 · 5단계</span></span></button>
+ <section class="card"><h2>지금 할 일</h2>${todos.length?todos.slice(0,4).map(([t,c,b])=>`<div class="todo"><span>${t}</span><button class="btn sm" onclick="${c}">${b}</button></div>`).join(''):'<p class="mini" style="margin:0">지금 할 일이 없어요.</p>'}</section>
+ <section><h2>내 상품 ${S.P.length}개</h2>${S.P.length?`<div class="grid3">${S.P.map(p=>{const n=ITEMS.filter(i=>p.st[i.k]==='done').length;return `<button class="pcard" onclick="openProduct('${p.id}')">
+  <div class="thumb" style="background:${ARTS[hsh(p.id)%6]}"><div class="boxart" style="--c:${esc(S.company.color)};width:56px;height:72px;font-size:8px">${p.name.split(' ').slice(0,2).map(esc).join('<br>')}</div></div>
+  <b style="font-size:18px">${esc(p.name)}</b><span class="row" style="gap:8px">${p.pkg?`<span class="chip">${esc(p.pkg)}</span>`:'<span class="chip amber">패키지 없음</span>'}<span class="mini">자료 6개 중 ${n}개 확정</span></span>
+  <span class="bar"><i style="width:${n/6*100}%"></i></span></button>`}).join('')}</div>`:'<p class="mini" style="margin:0">아직 등록한 상품이 없어요. 위의 [새 상품 등록하기]를 눌러 주세요.</p>'}</section></div>`};
+
+VIEWS.product=()=>{const p=cur();if(!p)return VIEWS.home();
+ return `<div class="stack" style="gap:18px"><div><button class="link" onclick="go('home')">← 홈</button><h1 style="margin-top:8px">${esc(p.name)}</h1>
+ <p class="lead" style="margin:0">${esc(p.info.vol)} · 공급가 <span class="num">${fmt(p.info.sup)}</span>원 · 판매가 <span class="num">${fmt(p.info.sell)}</span>원 · <button class="link" onclick="go('pinfo',{np:cur().info.sup})">상품 정보 고치기</button></p></div>
+ ${p.pkg?`<div class="band"><b>${esc(p.pkg)} 패키지</b><span>AI로 만들기 남음: 상세페이지 <b class="num">${p.cnt.detail}</b>회 · POP <b class="num">${p.cnt.pop}</b>회</span><button class="btn sm amber sp" onclick="startFlow('addon',{})">추가권 사기</button></div>`
+ :`<div class="band none"><b>아직 패키지가 없어요</b><span>패키지를 고르면 자료 6가지를 만들 수 있어요.</span><button class="btn sp" onclick="startFlow('pkg',{})">패키지 고르기</button></div>`}
+ <div class="card" style="padding:0">${ITEMS.map(it=>{const s=stInfo(p,it.k);return `<div class="item"><div><h3>${it.name}</h3><div class="d">${it.desc}</div><div class="st ${s.c}"><span class="dot"></span>${s.t}</div></div><div>${s.b}</div></div>`}).join('')}</div>
+ <p class="mini">만든 자료는 기한 없이 무료로 보관해요. 상품 정보가 바뀌면 바뀐 곳을 알려 드려요.</p></div>`};
+
+VIEWS.pinfo=()=>{const p=cur();return `<div class="narrow stack"><button class="link" style="align-self:flex-start" onclick="go('product')">← ${esc(p.name)}</button><h1>상품 정보 고치기</h1>
+ <p class="lead" style="margin:0">가격을 바꾸면 이미 확정한 자료 중 고쳐야 할 곳을 알려 드려요.</p>
+ <div class="card stack"><div class="field"><label for="np">공급가 (원)</label><input id="np" class="inp num" inputmode="numeric" value="${S.np}" oninput="S.np=+this.value.replace(/\\D/g,'');document.getElementById('nm').textContent=margin(S.np,${+p.info.sell||0})+'%'"><span class="hint">예: 6,300 으로 바꿔 보세요</span></div>
+ <div class="say">판매가 <b class="num">${fmt(p.info.sell)}원</b> · 매익율 <b id="nm" class="num">${margin(S.np,p.info.sell)}%</b></div></div>
+ <div class="row" style="justify-content:flex-end"><button class="btn ghost" onclick="go('product')">그대로 둘게요</button><button class="btn big" onclick="applyPrice()">다 고쳤어요</button></div></div>`};
+/* 가격을 저장하면 DB가 이미 만든 자료를 '가격이 바뀌었어요'로 표시해요. 저장한 뒤 상태를 다시 읽어 와요 */
+async function applyPrice(){const p=cur(),old=p.info.sup,nw=S.np;if(!nw||nw===old){go('product');return}
+ if(S.busy)return;S.busy=true;
+ try{const was={...p.st};const {name,...info}=p.info;info.sup=nw;
+  await q(sb.from('products').update({info}).eq('id',p.id));
+  p.info.sup=nw;await reloadAssets(p);
+  const hit=ITEMS.map(i=>i.k).filter(k=>p.st[k]==='changed'&&was[k]!=='changed');
+  log(p.name+' 공급가를 '+fmt(old)+'원에서 '+fmt(nw)+'원으로 바꿨어요',p.id);go('changed',{chg:{old,nw,sell:p.info.sell,hit}})}
+ catch(e){saveFail(e)}finally{S.busy=false}}
+VIEWS.changed=()=>{const c=S.chg,p=cur();return `<div class="narrow stack"><h1>정보가 바뀌었어요</h1><p class="lead" style="margin:0">바뀐 곳만 보여 드려요.</p>
+ <div class="card stack"><div class="mini">공급가</div><div class="diff"><span class="old">${fmt(c.old)}원</span><span>→</span><span>${fmt(c.nw)}원</span></div>
+ <div class="mini">매익율</div><div class="diff"><span class="old">${margin(c.old,c.sell)}%</span><span>→</span><span>${margin(c.nw,c.sell)}%</span></div></div>
+ ${c.hit.length?`<div class="say warn">다시 만들어야 하는 자료: <b>${c.hit.map(k=>ITEMS.find(i=>i.k===k).name).join(', ')}</b><br>가격만 바뀐 거라 횟수는 쓰지 않아요.</div>`:'<div class="say">아직 확정한 자료가 없어서 고칠 곳이 없어요.</div>'}
+ <div class="row" style="justify-content:flex-end"><button class="btn big" onclick="go('product')">확인했어요</button></div></div>`};
+
+VIEWS.done=()=>{const d=S.done;return `<div class="narrow stack" style="text-align:center;align-items:center;padding-top:30px"><span class="ck" style="width:72px;height:72px;font-size:36px">✓</span><h1>${d.title}</h1><p class="lead">${d.body}</p><button class="btn big" onclick="${d.to}">${d.btn}</button></div>`};
+VIEWS.orderView=()=>`<div class="narrow stack"><button class="link" style="align-self:flex-start" onclick="go('product')">← ${esc(cur().name)}</button><h1>발주 진행 상황</h1>${orderTL(cur().order)}</div>`;
+
+/* 내 정보: 구매 내역(purchases)과 지난 기록(activity_log)은 열 때마다 DB에서 읽어 와요 */
+async function openMe(){
+ try{const [b,l]=await Promise.all([
+   q(sb.from('purchases').select('*').order('created_at',{ascending:false})),
+   q(sb.from('activity_log').select('*').order('id',{ascending:false}).limit(8))]);
+  S.buys=b;S.log=l}
+ catch(e){loadFail(e)}
+ go('me')}
+const won=b=>b.amount>0?fmt(b.amount)+'원':(SKU_PRICE[b.sku]||'');
+VIEWS.me=()=>`<div class="narrow stack" style="gap:18px"><h1>내 정보</h1>
+ <section class="card"><h2>업체 정보</h2>${[['업체 이름',S.company.name],['연락처',S.company.tel],['사업자등록번호',S.company.biz],['대표자',S.company.ceo],['GLN 번호',S.company.gln||'아직 안 넣었어요'],['제조원',S.company.maker]].map(([k,v])=>`<div class="crow" style="grid-template-columns:150px minmax(0,1fr)"><span class="k">${k}</span><span>${esc(v)}</span></div>`).join('')}
+  <button class="btn soft" style="margin-top:12px" onclick="startFlow('company',{c:{...S.company}})">업체 정보 고치기</button></section>
+ <section class="card"><h2>구매 내역·영수증</h2>${S.buys.length?`<table class="t"><tbody>${S.buys.map(b=>`<tr><td class="num">${mmdd(b.created_at)}</td><td>${esc(b.title)}${b.status==='refunded'?' <span class="chip gray">환불했어요</span>':''}</td><td class="n">${won(b)}</td><td class="n"><button class="btn sm ghost" onclick="downloadFile('receipt','${b.id}')">영수증</button></td></tr>`).join('')}</tbody></table>`:'<p class="mini" style="margin:0 0 8px">아직 구매한 것이 없어요.</p>'}
+  <p class="mini">자료 횟수를 쓰기 전에는 환불할 수 있어요.</p></section>
+ <section class="card"><h2>지난 기록</h2>${S.log.length?S.log.map(l=>`<div class="todo"><span>${esc(l.message)}</span><span class="mini num">${mmdd(l.created_at)}</span></div>`).join(''):'<p class="mini" style="margin:0">아직 기록이 없어요.</p>'}</section>
+ <section class="card"><h2>계정</h2><div class="crow" style="grid-template-columns:150px minmax(0,1fr) auto"><span class="k">아이디</span><span>${esc(S.user.email)}</span><button class="btn sm ghost" onclick="logout()">로그아웃</button></div></section></div>`;
+
+/* ===== 시작: 접속하면 로그인돼 있는지 확인해요. 돼 있으면 홈, 아니면 로그인 화면 ===== */
+async function boot(){
+ render();
+ const C=window.APP_CONFIG||{};
+ if(!C.SUPABASE_URL||!C.SUPABASE_ANON_KEY||/YOUR-PROJECT/.test(C.SUPABASE_URL)||/YOUR-ANON-KEY/.test(C.SUPABASE_ANON_KEY)){S.screen='setup';render();return}
+ if(!window.supabase){S.screen='bootfail';render();return} // supabase-js 를 못 불러왔어요
+ sb=window.supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY);
+ sb.auth.onAuthStateChange(ev=>{ // 다른 창에서 로그아웃했거나 로그인이 풀렸을 때
+  if(ev==='SIGNED_OUT'&&S.user){S=init();S.screen='login';render()}});
+ try{
+  S.user=await authSession();
+  if(!S.user){go('login');return}
+  await enterApp()
+ }catch(e){console.warn(e);
+  if(isAuth(e)){await authSignOut();S=init();go('login');return}
+  S.screen='bootfail';render()}
+}
+boot();
+</script>
+</body>
+</html>
